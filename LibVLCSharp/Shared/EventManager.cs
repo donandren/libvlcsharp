@@ -9,12 +9,10 @@ namespace LibVLCSharp.Shared
     {
         public struct Internal
         {
-            [SuppressUnmanagedCodeSecurity]
             [DllImport(Constants.LibraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "libvlc_event_attach")]
             internal static extern int LibVLCEventAttach(IntPtr eventManager, EventType eventType, EventCallback eventCallback,
                 IntPtr userData);
 
-            [SuppressUnmanagedCodeSecurity]
             [DllImport(Constants.LibraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "libvlc_event_detach")]
             internal static extern void LibVLCEventDetach(IntPtr eventManager, EventType eventType, EventCallback eventCallback,
                 IntPtr userData);
@@ -50,7 +48,7 @@ namespace LibVLCSharp.Shared
 
         protected LibVLCEvent RetrieveEvent(IntPtr eventPtr)
         {
-            return Marshal.PtrToStructure<LibVLCEvent>(eventPtr);
+            return MarshalUtils.PtrToStructure<LibVLCEvent>(eventPtr);
         }
     }
 
@@ -1750,6 +1748,6 @@ namespace LibVLCSharp.Shared
         }
     }
 
-    [SuppressUnmanagedCodeSecurity, UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void EventCallback(IntPtr args);
 }

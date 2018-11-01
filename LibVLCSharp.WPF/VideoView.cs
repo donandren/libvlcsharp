@@ -1,18 +1,22 @@
-﻿using LibVLCSharp.Shared;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Forms.Integration;
+using LibVLCSharp.Shared;
 
 namespace LibVLCSharp.WPF
 {
-    [TemplatePart(Name = PART_PlayerHost, Type = typeof(WindowsFormsHost))]
-    [TemplatePart(Name = PART_PlayerView, Type = typeof(System.Windows.Forms.Panel))]
+    //[TemplatePart(Name = PART_PlayerHost, Type = typeof(WindowsFormsHost))]
+    //[TemplatePart(Name = PART_PlayerView, Type = typeof(System.Windows.Forms.Panel))]
+    [TemplatePart(Name = PART_Image, Type = typeof(Image))]
     public class VideoView : ContentControl, IVideoView, IDisposable
     {
         private const string PART_PlayerHost = "PART_PlayerHost";
         private const string PART_PlayerView = "PART_PlayerView";
+        private const string PART_Image = "PART_Image";
+        private VlcVideoSourceProvider _provider;
 
         public VideoView()
         {
@@ -24,6 +28,8 @@ namespace LibVLCSharp.WPF
 
                 LibVLC = new LibVLC();
                 MediaPlayer = new MediaPlayer(LibVLC);
+
+                _provider = new VlcVideoSourceProvider(MediaPlayer, Dispatcher);
 
                 Unloaded += VideoView_Unloaded;
             }
@@ -42,6 +48,8 @@ namespace LibVLCSharp.WPF
         public MediaPlayer MediaPlayer { get; private set; }
         public LibVLC LibVLC { get; private set; }
 
+        private Image Image { get; set; }
+
         private void VideoView_Unloaded(object sender, RoutedEventArgs e)
         {
             Dispose();
@@ -53,18 +61,25 @@ namespace LibVLCSharp.WPF
 
             if (!IsDesignMode)
             {
-                var windowsFormsHost = Template.FindName(PART_PlayerHost, this) as FrameworkElement;
-                if (windowsFormsHost != null)
-                {
-                    ForegroundWindow = new ForegroundWindow(windowsFormsHost);
-                    ForegroundWindow.Content = ViewContent;
-                }
+                Image = Template.FindName(PART_Image, this) as Image;
 
-                var hwnd = (Template.FindName(PART_PlayerView, this) as System.Windows.Forms.Panel)?.Handle;
-                if (hwnd != null)
+                Image.SetBinding(Image.SourceProperty, new Binding(nameof(_provider.VideoSource))
                 {
-                    MediaPlayer.Hwnd = (IntPtr)hwnd;
-                }
+                    Source = _provider
+                });
+
+                //var windowsFormsHost = Template.FindName(PART_PlayerHost, this) as FrameworkElement;
+                //if (windowsFormsHost != null)
+                //{
+                //    ForegroundWindow = new ForegroundWindow(windowsFormsHost);
+                //    ForegroundWindow.Content = ViewContent;
+                //}
+
+                //var hwnd = (Template.FindName(PART_PlayerView, this) as System.Windows.Forms.Panel)?.Handle;
+                //if (hwnd != null)
+                //{
+                //    MediaPlayer.Hwnd = (IntPtr)hwnd;
+                //}
             }
         }
 
@@ -77,21 +92,21 @@ namespace LibVLCSharp.WPF
                 return;
             }
 
-            IsUpdatingContent = true;
-            try
-            {
-                Content = null;
-            }
-            finally
-            {
-                IsUpdatingContent = false;
-            }
+            //IsUpdatingContent = true;
+            //try
+            //{
+            //    Content = null;
+            //}
+            //finally
+            //{
+            //    IsUpdatingContent = false;
+            //}
 
-            ViewContent = newContent as UIElement;
-            if (ForegroundWindow != null)
-            {
-                ForegroundWindow.Content = ViewContent;
-            }
+            //ViewContent = newContent as UIElement;
+            //if (ForegroundWindow != null)
+            //{
+            //    ForegroundWindow.Content = ViewContent;
+            //}
         }
 
         public void Dispose()

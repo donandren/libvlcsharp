@@ -1,5 +1,5 @@
 ﻿using LibVLCSharp.Shared;
-
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -26,7 +26,7 @@ namespace LibVLCSharp.WPF.Sample
         {
             if (Player.MediaPlayer.IsPlaying)
             {
-                Player.MediaPlayer.Stop();
+                Task.Run(() => Player.MediaPlayer.Stop());
             }
         }
 

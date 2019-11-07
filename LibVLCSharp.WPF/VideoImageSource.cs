@@ -134,6 +134,10 @@ namespace LibVLCSharp.WPF
             return dimension + mod - (dimension % mod);
         }
 
+        IntPtr _buffer;
+        int _bufferSize;
+        
+
         #region Vlc video callbacks
 
         /// <summary>
@@ -159,6 +163,8 @@ namespace LibVLCSharp.WPF
             this.memoryMappedFile = MemoryMappedFile.CreateNew(null, size);
             var handle = this.memoryMappedFile.SafeMemoryMappedFileHandle.DangerousGetHandle();
 
+            //_bufferSize = (int)size;
+            //_buffer = Marshal.AllocHGlobal(_bufferSize*2);
             var args = new
             {
                 width = width,
@@ -171,13 +177,14 @@ namespace LibVLCSharp.WPF
             {
                 var bmp = (InteropBitmap)Imaging.CreateBitmapSourceFromMemorySection(handle,
                         (int)args.width, (int)args.height, args.pixelFormat, (int)args.pitches, 0);
-                VideoSource = bmp;
+                 VideoSource = bmp;
             });
 
             this.memoryMappedView = memoryMappedFile.CreateViewAccessor();
             var viewHandle = this.memoryMappedView.SafeMemoryMappedViewHandle.DangerousGetHandle();
 
             userdata = viewHandle;
+
             return 1;
         }
 
@@ -230,9 +237,9 @@ namespace LibVLCSharp.WPF
         private void RemoveVideo()
         {
             this.VideoSource = null;
-            this.memoryMappedView?.Dispose();
+           // this.memoryMappedView?.Dispose();
             this.memoryMappedView = null;
-            this.memoryMappedFile?.Dispose();
+           // this.memoryMappedFile?.Dispose();
             this.memoryMappedFile = null;
         }
 
